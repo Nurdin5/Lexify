@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Lexify</string>
+    <string name="no_tasks_for_date">Нет задач на выбранную дату</string>
+    <string name="past_date_message">Просмотр задач за прошедшую дату. Редактирование недоступно.</string>
+    
+    <!-- Profit related strings -->
+    <string name="add_income">Добавить доход</string>
+    <string name="income_amount">Сумма</string>
+    <string name="income_note">Примечание (необязательно)</string>
+    <string name="error_amount_required">Введите сумму дохода</string>
+    <string name="error_invalid_amount">Сумма должна быть больше нуля</string>
+    <string name="error_invalid_number">Введите корректное число</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="add">Добавить</string>
+    <string name="daily_income">Доход за день</string>
+    <string name="no_income">Нет данных о доходах</string>
+</resources>

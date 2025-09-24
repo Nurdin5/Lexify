@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Primary colors (Yellow) -->
+    <color name="yellow_200">#FFFFF176</color>
+    <color name="yellow_500">#FFEB3B</color>
+    <color name="yellow_700">#FBC02D</color>
+    
+    <!-- Secondary colors (Black) -->
+    <color name="black_200">#424242</color>
+    <color name="black_500">#212121</color>
+    <color name="black_700">#000000</color>
+    
+    <!-- Status bar color -->
+    <color name="status_bar_color">#000000</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#DE000000</color>
+    <color name="text_secondary">#8A000000</color>
+    
+    <!-- Background colors -->
+    <color name="background">#FFEB3B</color>
+    <color name="surface">#FFF5F5F5</color>
+</resources>

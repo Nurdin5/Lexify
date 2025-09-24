@@ -1,0 +1,48 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Lexify" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color (Yellow) -->
+        <item name="colorPrimary">@color/yellow_500</item>
+        <item name="colorPrimaryVariant">@color/yellow_700</item>
+        <item name="colorOnPrimary">@color/black_700</item>
+        
+        <!-- Secondary brand color (Black) -->
+        <item name="colorSecondary">@color/black_500</item>
+        <item name="colorSecondaryVariant">@color/black_700</item>
+        <item name="colorOnSecondary">@color/yellow_500</item>
+        
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/black_700</item>
+        <item name="android:navigationBarColor">@color/black_700</item>
+        
+        <!-- Customize your theme here. -->
+        <item name="toolbarStyle">@style/Widget.Lexify.Toolbar</item>
+    </style>
+
+    <style name="Theme.Lexify" parent="Base.Theme.Lexify" />
+    
+    <!-- Toolbar styles -->
+    <style name="Widget.Lexify.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="subtitleTextColor">?attr/colorOnPrimary</item>
+    </style>
+    
+    <!-- Bottom Sheet Dialog Theme -->
+    <style name="BottomSheetDialogTheme" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Material3.BottomSheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+    
+    <!-- AppBar overlay styles -->
+    <style name="ThemeOverlay.Lexify.AppBarOverlay" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:textColorPrimary">@color/black_700</item>
+        <item name="android:textColorSecondary">@color/black_500</item>
+    </style>
+    
+    <style name="ThemeOverlay.Lexify.PopupOverlay" parent="ThemeOverlay.Material3.Light">
+        <item name="android:background">@color/yellow_200</item>
+        <item name="android:textColor">@color/black_700</item>
+    </style>
+</resources>
