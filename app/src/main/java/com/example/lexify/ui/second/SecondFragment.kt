@@ -1,4 +1,4 @@
-package com.example.lexify.ui.second
+package com.lexify.ikik.ui.second
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.lexify.R
 import com.example.lexify.databinding.FragmentSecondBinding
 
 class SecondFragment : Fragment() {

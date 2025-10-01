@@ -5,29 +5,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black_700"
-    android:padding="16dp">
-
-    <!-- AppBar removed as requested -->
+    android:background="@color/black_700">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="0dp"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Дата -->
             <TextView
                 android:id="@+id/selectedDateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:textColor="@color/yellow_200"
-                android:textAppearance="?attr/textAppearanceHeadline6" />
+                android:layout_marginBottom="8dp"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/yellow_200" />
 
             <TextView
                 android:id="@+id/dateInfoText"
@@ -38,14 +36,15 @@
                 android:textSize="14sp"
                 android:visibility="gone" />
 
+            <!-- Добавление задачи -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/titleInputLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:textColorHint="@color/yellow_200"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:hint="Название задачи"
+                android:textColorHint="@color/yellow_200"
                 app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -53,9 +52,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="@color/yellow_500"
-                    android:textColorHint="@color/yellow_200"
-                    android:maxLines="1" />
+                    android:textColorHint="@color/yellow_200" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -63,10 +62,10 @@
                 android:id="@+id/descriptionInputLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:textColorHint="@color/yellow_200"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:hint="Описание (необязательно)">
+                android:layout_marginBottom="16dp"
+                android:hint="Описание (необязательно)"
+                android:textColorHint="@color/yellow_200">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/descriptionEditText"
@@ -74,94 +73,166 @@
                     android:layout_height="wrap_content"
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
-                    android:minLines="3"
-                    android:maxLines="5" />
+                    android:maxLines="5"
+                    android:minLines="3" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveButton"
                 style="@style/Widget.MaterialComponents.Button"
-                app:backgroundTint="@color/yellow_500"
-                android:textColor="@color/black_700"
-                app:rippleColor="@color/yellow_200"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:padding="12dp"
+                android:layout_marginBottom="24dp"
                 android:text="Сохранить задачу"
                 android:textAllCaps="false"
+                android:textColor="@color/black_700"
+                app:backgroundTint="@color/yellow_500"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
-                app:iconTint="@color/black_700" />
+                app:iconTint="@color/black_700"
+                app:rippleColor="@color/yellow_200" />
 
+            <!-- Список задач -->
+            <TextView
+                android:id="@+id/tasksLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Задачи"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tasksRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginTop="24dp"
-                android:clipToPadding="false"
-                android:paddingBottom="16dp"
-                android:visibility="visible"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_task"
-                tools:itemCount="3"
-                tools:visibility="visible" />
-                
-            <!-- Profits Section -->
-            <TextView
-                android:id="@+id/profitsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="8dp"
-                android:text="Доход за день"
-                android:textColor="@color/yellow_500"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-                
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/profitsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                tools:listitem="@layout/item_profit"
-                tools:itemCount="2" />
-                
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addProfitButton"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:text="Добавить доход"
-                android:textAllCaps="false"
-                app:icon="@drawable/ic_add"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/yellow_500"
-                app:iconTint="@color/yellow_500"
-                android:textColor="@color/yellow_500" />
-                
+                android:nestedScrollingEnabled="false" />
+
+            <TextView
+                android:id="@+id/emptyTasksText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/no_tasks_found"
+                android:textColor="@color/gray_400"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/emptyStateText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:gravity="center"
-                android:textColor="@color/yellow_500"
                 android:text="@string/no_tasks_for_date"
+                android:textColor="@color/yellow_500"
                 android:textSize="16sp"
                 android:visibility="gone" />
 
+
+            <!-- Доход -->
+            <TextView
+                android:id="@+id/profitsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Доход за день"
+                android:textColor="@color/yellow_500"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/profitsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- Расход -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/expensesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Расход за день:"
+                    android:textColor="@color/red_500"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/expenseTotalText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="0 ₸"
+                    android:textColor="@color/red_500"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/expensesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- Кнопки доход/расход -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addProfitButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="Добавить доход"
+                    android:textAllCaps="false"
+                    android:textColor="@color/yellow_500"
+                    app:icon="@drawable/ic_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconTint="@color/yellow_500"
+                    app:strokeColor="@color/yellow_500"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addExpenseButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Добавить расход"
+                    android:textAllCaps="false"
+                    android:textColor="@color/red_700"
+                    app:icon="@drawable/ic_remove"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconTint="@color/red_700"
+                    app:strokeColor="@color/red_700"
+                    app:strokeWidth="1dp" />
+
+            </LinearLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,4 +1,4 @@
-package com.example.lexify.data
+package com.lexify.ikik.data
 
 import androidx.room.TypeConverter
 import java.util.*

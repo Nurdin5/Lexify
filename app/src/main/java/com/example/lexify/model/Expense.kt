@@ -4,11 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity(tableName = "daily_profits")
-data class DailyProfit(
+@Entity(tableName = "expenses")
+data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val amount: Double,
     val date: Date,
-    val note: String = ""
+    val note: String = "",
+    val category: String = ""
 )

@@ -14,8 +14,24 @@
     <color name="black_500">#212121</color>
     <color name="black_700">#000000</color>
     
+    <!-- Gray colors -->
+    <color name="gray_400">#BDBDBD</color>
+    
+    <!-- Expense colors -->
+    <color name="red_700">#D32F2F</color>  <!-- Darker red for expense button -->
+    
     <!-- Status bar color -->
     <color name="status_bar_color">#000000</color>
+    
+    <!-- White with alpha -->
+    <color name="white_alpha_70">#B3FFFFFF</color>
+    
+    <!-- Red colors -->
+    <color name="red_200">#EF9A9A</color>
+    <color name="red_500">#F44336</color>
+    
+    <!-- Black with opacity -->
+    <color name="black_600">#1E000000</color>
     
     <!-- Text colors -->
     <color name="text_primary">#DE000000</color>

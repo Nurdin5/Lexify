@@ -15,4 +15,11 @@
     <string name="add">Добавить</string>
     <string name="daily_income">Доход за день</string>
     <string name="no_income">Нет данных о доходах</string>
+    <string name="error_category_required">Укажите категорию</string>
+    <string name="error_adding_expense">Ошибка при добавлении расхода</string>
+    <string name="error_adding_profit">Ошибка при добавлении дохода</string>
+    
+    <!-- Tasks section -->
+    <string name="tasks">Задачи</string>
+    <string name="no_tasks_found">Нет задач</string>
 </resources>

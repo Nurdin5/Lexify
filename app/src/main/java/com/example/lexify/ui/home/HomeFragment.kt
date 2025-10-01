@@ -12,17 +12,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.lifecycle.Observer
 import com.example.lexify.adapter.CalendarAdapter
-import com.example.lexify.data.ProfitDao
-import com.example.lexify.ui.task.TaskAdapter
-import com.example.lexify.data.AppDatabase
-import com.example.lexify.databinding.FragmentHomeBinding
 import com.example.lexify.model.CalendarDay
+import com.example.lexify.databinding.FragmentHomeBinding
+import com.example.lexify.ui.task.TaskAdapter
 import com.example.lexify.ui.task.TaskViewModel
 import com.example.lexify.ui.task.TaskViewModelFactory
+import com.example.lexify.data.AppDatabase
+import com.example.lexify.data.ProfitDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.*
 
@@ -44,7 +43,7 @@ class HomeFragment : Fragment() {
     }
     
     private val viewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(db.taskDao())
+        TaskViewModelFactory(db.taskDao(), db.expenseDao(), profitDao)
     }
 
     override fun onCreateView(
@@ -148,7 +147,7 @@ class HomeFragment : Fragment() {
             Date(startOfDay),
             Date(endOfDay)
         ).observe(viewLifecycleOwner, Observer { profits ->
-            val totalIncome = profits.sumOf { it.amount.toDouble() }.toInt()
+            val totalIncome = profits.sumOf { it.amount }.toInt()
             binding.todayIncomeText.text = "$totalIncome ₽"
         })
     }

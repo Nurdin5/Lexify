@@ -1,45 +1,60 @@
 package com.example.lexify.ui.task
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lexify.R
+import com.example.lexify.adapter.ExpenseAdapter
 import com.example.lexify.adapter.ProfitAdapter
 import com.example.lexify.data.AppDatabase
 import com.example.lexify.data.ProfitDao
+import com.example.lexify.data.TaskDao
+import com.example.lexify.databinding.DialogAddProfitBinding
 import com.example.lexify.databinding.FragmentAddTaskBinding
-import com.example.lexify.model.DailyProfit
+import com.example.lexify.model.Expense
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
-import java.text.NumberFormat
-import java.util.*
-import kotlinx.coroutines.flow.collectLatest
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AddTaskFragment : Fragment() {
+    companion object {
+        private const val TAG = "AddTaskFragment"
+    }
     private var _binding: FragmentAddTaskBinding? = null
     private val binding get() = _binding!!
     private val args: AddTaskFragmentArgs by navArgs()
-    
+
     private val viewModel: TaskViewModel by viewModels {
-        val taskDao = AppDatabase.getDatabase(requireContext()).taskDao()
-        TaskViewModelFactory(taskDao)
+        val database = AppDatabase.Companion.getDatabase(requireContext())
+        TaskViewModelFactory(
+            database.taskDao(),
+            database.expenseDao(),
+            database.profitDao()
+        )
     }
-    
+
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var profitAdapter: ProfitAdapter
+    private lateinit var expenseAdapter: ExpenseAdapter
     private var selectedDate: Date = Date()
     private lateinit var profitDao: ProfitDao
+    private lateinit var taskDao: TaskDao
+    // expenseDao is now obtained through the ViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,27 +67,32 @@ class AddTaskFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         // Get the selected date from arguments
         selectedDate = Date(args.selectedDate)
-        profitDao = AppDatabase.getDatabase(requireContext()).profitDao()
-        
+        profitDao = AppDatabase.Companion.getDatabase(requireContext()).profitDao()
+        taskDao = AppDatabase.Companion.getDatabase(requireContext()).taskDao()
+
         setupUI()
         setupRecyclerView()
         setupClickListeners()
+
+        // Set up observers
         observeTasks()
         observeProfits()
-        
-        // Load tasks and profits for the selected date
+        observeExpenses()
+
+        // Load data for the selected date
         viewModel.loadTasksForDate(selectedDate)
         loadProfitsForDate(selectedDate)
+        loadExpensesForDate(selectedDate)
     }
-    
+
     private fun setupUI() {
         // Format and display the selected date
         val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
         binding.selectedDateText.text = dateFormat.format(selectedDate)
-        
+
         // Set up the add profit button
         binding.addProfitButton.apply {
             setOnClickListener { showAddProfitDialog() }
@@ -80,7 +100,15 @@ class AddTaskFragment : Fragment() {
             strokeColor = resources.getColorStateList(R.color.yellow_500, null)
             iconTint = resources.getColorStateList(R.color.yellow_500, null)
         }
-        
+
+        // Set up the add expense button
+        binding.addExpenseButton.apply {
+            setOnClickListener { showAddExpenseDialog() }
+            setTextColor(resources.getColor(R.color.red_500, null))
+            strokeColor = resources.getColorStateList(R.color.red_500, null)
+            iconTint = resources.getColorStateList(R.color.red_500, null)
+        }
+
         // Check if the selected date is in the past
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -88,15 +116,15 @@ class AddTaskFragment : Fragment() {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }.time
-        
+
         val isPastDate = selectedDate.before(today)
-        
+
         // If the date is in the past, disable the input fields and button
         if (isPastDate) {
             binding.titleInputLayout.isEnabled = false
             binding.descriptionInputLayout.isEnabled = false
             binding.saveButton.visibility = View.GONE
-            
+
             // Show a message that this is a past date
             binding.dateInfoText.visibility = View.VISIBLE
             binding.dateInfoText.text = getString(R.string.past_date_message)
@@ -107,24 +135,51 @@ class AddTaskFragment : Fragment() {
             binding.dateInfoText.visibility = View.GONE
         }
     }
-    
+
     private fun setupRecyclerView() {
         // Set up profits RecyclerView
         profitAdapter = ProfitAdapter { profit ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                profitDao.delete(profit)
+            viewModel.deleteProfit(profit) { success ->
+                if (success) {
+                    showMessage("Доход удален")
+                    loadProfitsForDate(selectedDate) // Reload profits after deletion
+                } else {
+                    showError("Не удалось удалить доход")
+                }
             }
         }
-        
+
         binding.profitsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = profitAdapter
             setHasFixedSize(true)
+            isNestedScrollingEnabled = false
+            visibility = View.VISIBLE
         }
-        
+
+        // Set up expenses RecyclerView
+        expenseAdapter = ExpenseAdapter { expense ->
+            viewModel.deleteExpense(expense) { success ->
+                if (success) {
+                    showMessage("Расход удален")
+                    loadExpensesForDate(selectedDate) // Reload expenses after deletion
+                } else {
+                    showError("Не удалось удалить расход")
+                }
+            }
+        }
+
+        binding.expensesRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = expenseAdapter
+            setHasFixedSize(true)
+            isNestedScrollingEnabled = false
+            visibility = View.VISIBLE
+        }
+
         // Set up tasks RecyclerView
         val isPastDate = selectedDate.before(getTodayStart())
-        
+
         taskAdapter = TaskAdapter(
             onTaskChecked = { task, isChecked ->
                 // Only allow toggling completion for today and future dates
@@ -146,7 +201,7 @@ class AddTaskFragment : Fragment() {
             },
             isReadOnly = isPastDate
         )
-        
+
         with(binding.tasksRecyclerView) {
             layoutManager = LinearLayoutManager(requireContext()).apply {
                 // Optional: Add item decoration for spacing between items if needed
@@ -157,7 +212,7 @@ class AddTaskFragment : Fragment() {
             // Make sure the RecyclerView is visible
             visibility = View.VISIBLE
         }
-        
+
         // Add a text view to show when there are no tasks
         binding.emptyStateText.visibility = View.GONE
     }
@@ -194,52 +249,97 @@ class AddTaskFragment : Fragment() {
     }
 
     private fun observeProfits() {
-        profitDao.getProfitsForDate(selectedDate).observe(viewLifecycleOwner) { profits ->
-            profitAdapter.submitList(profits)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.profits.collect { profits ->
+                Log.d(TAG, "profits observed: count=${profits.size}")
+                profitAdapter.submitList(profits)
 
-            // Show/hide profits section
-            if (profits.isNotEmpty()) {
-                binding.profitsLabel.visibility = View.VISIBLE
-                binding.profitsRecyclerView.visibility = View.VISIBLE
-            } else {
-                binding.profitsLabel.visibility = View.GONE
-                binding.profitsRecyclerView.visibility = View.GONE
+                // Show/hide profits section
+                if (profits.isNotEmpty()) {
+                    binding.profitsLabel.visibility = View.VISIBLE
+                    binding.profitsRecyclerView.visibility = View.VISIBLE
+                } else {
+                    binding.profitsLabel.visibility = View.GONE
+                    binding.profitsRecyclerView.visibility = View.GONE
+                }
             }
         }
     }
 
-    private fun loadProfitsForDate(date: Date) {
+    private fun observeExpenses() {
         viewLifecycleOwner.lifecycleScope.launch {
-            val profits = profitDao.getProfitsForDate(date).value ?: emptyList()
-            profitAdapter.submitList(profits)
+            viewModel.expenses.collect { expenses ->
+                Log.d(TAG, "expenses observed: count=${expenses.size}")
+                expenseAdapter.submitList(expenses)
+                updateExpenseTotal(expenses)
+
+                // Show/hide expenses section
+                if (expenses.isNotEmpty()) {
+                    binding.expensesLabel.visibility = View.VISIBLE
+                    binding.expensesRecyclerView.visibility = View.VISIBLE
+                } else {
+                    binding.expensesLabel.visibility = View.GONE
+                    binding.expensesRecyclerView.visibility = View.GONE
+                }
+            }
         }
     }
 
-    private fun showAddProfitDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_profit, null)
+    private fun updateExpenseTotal(expenses: List<Expense>) {
+        val total = expenses.sumOf { it.amount.toDouble() }
+        binding.expenseTotalText.text = String.format("%.0f ₽", total)
+        binding.expenseTotalText.visibility = if (expenses.isNotEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun loadExpensesForDate(date: Date) {
+        viewModel.loadExpensesForDate(date)
+    }
+
+    private fun loadProfitsForDate(date: Date) {
+        viewModel.loadProfitsForDate(date)
+    }
+
+    private fun showAddExpenseDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_expense, null)
         val dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
 
         val amountInput = dialogView.findViewById<TextInputEditText>(R.id.amountInput)
         val noteInput = dialogView.findViewById<TextInputEditText>(R.id.noteInput)
+        val categoryInput = dialogView.findViewById<AutoCompleteTextView>(R.id.categoryInput)
+
+        // Set up categories for the dropdown
+        val categories = arrayOf("Еда", "Транспорт", "Покупки", "Развлечения", "Другое")
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories)
+        categoryInput.setAdapter(adapter)
 
         dialogView.findViewById<View>(R.id.addButton).setOnClickListener {
             val amountText = amountInput.text.toString()
             val note = noteInput.text.toString().trim()
+            val category = categoryInput.text.toString().trim()
 
-            if (amountText.isNotEmpty()) {
+            if (amountText.isNotEmpty() && category.isNotEmpty()) {
                 try {
                     val amount = amountText.toDouble()
                     if (amount > 0) {
-                        val profit = DailyProfit(
+                        val expense = Expense(
                             amount = amount,
                             date = selectedDate,
-                            note = note
+                            note = if (note.isNotEmpty()) "$category: $note" else category,
+                            category = category
                         )
 
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            profitDao.insert(profit)
-                            dialog.dismiss()
+                        viewModel.addExpense(
+                            amount = amount,
+                            date = selectedDate,
+                            note = if (note.isNotEmpty()) "$category: $note" else category,
+                            category = category
+                        ) { success ->
+                            if (!success) {
+                                showError(getString(R.string.error_adding_expense))
+                            }
                         }
+                        dialog.dismiss()
                     } else {
                         amountInput.error = getString(R.string.error_invalid_amount)
                     }
@@ -247,7 +347,25 @@ class AddTaskFragment : Fragment() {
                     amountInput.error = getString(R.string.error_invalid_number)
                 }
             } else {
-                amountInput.error = getString(R.string.error_amount_required)
+                if (amountText.isEmpty()) {
+                    dialogView.findViewById<TextInputLayout>(R.id.amountInputLayout).error = getString(R.string.error_amount_required)
+                }
+                if (category.isEmpty()) {
+                    dialogView.findViewById<TextInputLayout>(R.id.categoryInputLayout).error = getString(R.string.error_category_required)
+                }
+            }
+        }
+
+        // Clear errors when user starts typing
+        amountInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                dialogView.findViewById<TextInputLayout>(R.id.amountInputLayout).error = null
+            }
+        }
+
+        categoryInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                dialogView.findViewById<TextInputLayout>(R.id.categoryInputLayout).error = null
             }
         }
 
@@ -256,6 +374,54 @@ class AddTaskFragment : Fragment() {
         }
 
         dialog.setContentView(dialogView)
+        dialog.show()
+    }
+
+    private fun showAddProfitDialog() {
+        val binding = DialogAddProfitBinding.inflate(layoutInflater)
+        val dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
+
+        binding.addButton.setOnClickListener {
+            val amountText = binding.amountInput.text.toString()
+            val note = binding.noteInput.text.toString().trim()
+
+            // Clear previous errors
+            binding.amountLayout.error = null
+
+            if (amountText.isBlank()) {
+                binding.amountLayout.error = getString(R.string.error_amount_required)
+                return@setOnClickListener
+            }
+
+            try {
+                val amount = amountText.toDouble()
+                if (amount > 0) {
+                    viewModel.addProfit(
+                        amount = amount,
+                        date = selectedDate,
+                        note = if (note.isNotBlank()) note else null,
+                        onComplete = { success ->
+                            if (success) {
+                                dialog.dismiss()
+                                loadProfitsForDate(selectedDate)
+                            } else {
+                                showError(getString(R.string.error_adding_profit))
+                            }
+                        }
+                    )
+                } else {
+                    binding.amountLayout.error = getString(R.string.error_invalid_amount)
+                }
+            } catch (e: NumberFormatException) {
+                binding.amountLayout.error = getString(R.string.error_invalid_number)
+            }
+        }
+
+        binding.cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(binding.root)
         dialog.show()
     }
 
@@ -286,22 +452,16 @@ class AddTaskFragment : Fragment() {
             binding.emptyStateText.visibility = View.GONE
         }
     }
-    
-    
-    private fun clearInputs() {
-        binding.titleEditText.text?.clear()
-        binding.descriptionEditText.text?.clear()
-        binding.titleInputLayout.error = null
-    }
-    
+
+
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
-    
+
     private fun showMessage(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-    
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

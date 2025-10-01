@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lexify.R
 import com.example.lexify.model.DailyProfit
 import java.text.NumberFormat
-import java.util.*
+import java.util.Locale
 
 class ProfitAdapter(
     private val onDeleteClick: (DailyProfit) -> Unit
@@ -46,7 +46,7 @@ class ProfitAdapter(
         fun bind(profit: DailyProfit) {
             amountText.text = String.format("+%s", currencyFormat.format(profit.amount))
             noteText.text = profit.note.ifEmpty { "Без описания" }
-            
+
             deleteButton.setOnClickListener {
                 onDeleteClick(profit)
             }
